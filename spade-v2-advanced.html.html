@@ -1,0 +1,1234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spade TPRM Enhanced - Industry-Best Third-Party Risk Management</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --info: #0ea5e9;
+            --gray-50: #f9fafb;
+            --gray-100: #f3f4f6;
+            --gray-200: #e5e7eb;
+            --gray-300: #d1d5db;
+            --gray-600: #4b5563;
+            --gray-900: #111827;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: var(--gray-900);
+            min-height: 100vh;
+        }
+
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1.5rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-brand {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .brand-logo {
+            font-size: 2rem;
+        }
+
+        .brand-info h1 {
+            font-size: 1.5rem;
+            font-weight: 800;
+            margin: 0;
+        }
+
+        .brand-info p {
+            font-size: 0.8rem;
+            opacity: 0.9;
+            margin: 0.25rem 0 0 0;
+        }
+
+        nav {
+            background: white;
+            border-bottom: 1px solid var(--gray-200);
+            position: sticky;
+            top: 70px;
+            z-index: 99;
+            overflow-x: auto;
+        }
+
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+        }
+
+        .nav-btn {
+            padding: 1rem 1.5rem;
+            border: none;
+            background: none;
+            cursor: pointer;
+            font-size: 0.95rem;
+            color: var(--gray-600);
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+            white-space: nowrap;
+        }
+
+        .nav-btn:hover {
+            color: var(--primary);
+            background: var(--gray-50);
+        }
+
+        .nav-btn.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+            font-weight: 600;
+        }
+
+        main {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .container {
+            display: none;
+        }
+
+        .container.active {
+            display: block;
+        }
+
+        .card {
+            background: white;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .card h3 {
+            margin-bottom: 1rem;
+            color: var(--primary);
+            font-size: 1.1rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        thead {
+            background: var(--gray-50);
+        }
+
+        th, td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid var(--gray-200);
+        }
+
+        th {
+            font-weight: 600;
+            color: var(--gray-900);
+        }
+
+        tr:hover {
+            background: var(--gray-50);
+        }
+
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn:hover {
+            background: var(--primary-dark);
+        }
+
+        .btn-success { background: var(--success); }
+        .btn-success:hover { background: #059669; }
+        .btn-warning { background: var(--warning); }
+        .btn-warning:hover { background: #d97706; }
+        .btn-danger { background: var(--danger); }
+        .btn-danger:hover { background: #dc2626; }
+
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .kpi-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .kpi-value {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--primary);
+            margin: 0.5rem 0;
+        }
+
+        .kpi-label {
+            font-size: 0.85rem;
+            color: var(--gray-600);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 999px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .badge-critical { background: #fee2e2; color: #991b1b; }
+        .badge-high { background: #fef3c7; color: #92400e; }
+        .badge-medium { background: #dbeafe; color: #1e40af; }
+        .badge-low { background: #dcfce7; color: #166534; }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+        }
+
+        .modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 0.75rem;
+            padding: 2rem;
+            max-width: 700px;
+            max-height: 90vh;
+            overflow-y: auto;
+            width: 90%;
+        }
+
+        .modal-header {
+            font-size: 1.5rem;
+            font-weight: 800;
+            margin-bottom: 1.5rem;
+            color: var(--primary);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--gray-900);
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--gray-300);
+            border-radius: 0.5rem;
+            font-family: inherit;
+            font-size: 0.95rem;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
+        .flex-between {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .page-title {
+            font-size: 1.75rem;
+            font-weight: 800;
+            color: var(--gray-900);
+            margin-bottom: 1.5rem;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 350px;
+            margin-bottom: 2rem;
+        }
+
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .nav-btn {
+                padding: 0.75rem 1rem;
+                font-size: 0.85rem;
+            }
+
+            main {
+                padding: 1rem;
+            }
+
+            .kpi-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .modal-content {
+                width: 95%;
+                padding: 1.5rem;
+            }
+        }
+
+        .ai-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 999px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            margin-left: 0.5rem;
+        }
+
+        .risk-heat-map {
+            width: 100%;
+            height: 400px;
+            position: relative;
+        }
+
+        .vendor-card {
+            background: white;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
+            border-left: 4px solid var(--primary);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .vendor-card:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .vendor-card.critical {
+            border-left-color: var(--danger);
+        }
+
+        .vendor-card.high {
+            border-left-color: var(--warning);
+        }
+
+        .alert {
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .alert-info {
+            background: #dbeafe;
+            border-left: 4px solid var(--info);
+            color: #1e40af;
+        }
+
+        .alert-warning {
+            background: #fef3c7;
+            border-left: 4px solid var(--warning);
+            color: #92400e;
+        }
+
+        .alert-danger {
+            background: #fee2e2;
+            border-left: 4px solid var(--danger);
+            color: #991b1b;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <div class="header-brand">
+                <div class="brand-logo">⚙️</div>
+                <div class="brand-info">
+                    <h1>Spade TPRM Enhanced</h1>
+                    <p>Industry-Best Third-Party Risk Management Tool</p>
+                </div>
+            </div>
+            <div style="color: white; font-size: 0.9rem;">
+                ✨ AI-Powered | Real-Time Monitoring | Regulatory Intelligence
+            </div>
+        </div>
+    </header>
+
+    <nav>
+        <div class="nav-container">
+            <button class="nav-btn active" onclick="switchTab('dashboard')">📊 Dashboard</button>
+            <button class="nav-btn" onclick="switchTab('scoping')">🎯 Smart Scoping</button>
+            <button class="nav-btn" onclick="switchTab('inventory')">📦 Vendor Inventory</button>
+            <button class="nav-btn" onclick="switchTab('analysis')">⚠️ Risk Analysis</button>
+            <button class="nav-btn" onclick="switchTab('classification')">🏢 Classification</button>
+            <button class="nav-btn" onclick="switchTab('assessment')">📋 Risk Assessment</button>
+        </div>
+    </nav>
+
+    <main>
+        <!-- DASHBOARD TAB -->
+        <div id="dashboard" class="container active">
+            <h2 class="page-title">📊 TPRM Dashboard <span class="ai-badge">AI-POWERED</span></h2>
+
+            <div class="alert alert-info">
+                ✨ This enhanced dashboard includes AI risk prediction, anomaly detection, and regulatory intelligence
+            </div>
+
+            <div class="kpi-grid">
+                <div class="kpi-card">
+                    <div class="kpi-label">Total Vendors</div>
+                    <div class="kpi-value" id="kpi-vendors">0</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">Critical Risk</div>
+                    <div class="kpi-value" id="kpi-critical" style="color: var(--danger);">0</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">High Risk</div>
+                    <div class="kpi-value" id="kpi-high" style="color: var(--warning);">0</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">AI Risk Forecast <span style="font-size: 0.7rem;">6mo</span></div>
+                    <div class="kpi-value" id="kpi-forecast" style="color: var(--info);">+12%</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>📈 Risk Distribution (by Criticality)</h3>
+                <div class="chart-container">
+                    <canvas id="riskChart"></canvas>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>🔥 Vendor Risk Heat Map (Top Vendors)</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Vendor Name</th>
+                            <th>Criticality</th>
+                            <th>Current Risk</th>
+                            <th>Predicted Risk <span class="ai-badge">AI</span></th>
+                            <th>Risk Velocity</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="heat-map-table">
+                        <tr>
+                            <td colspan="6" style="text-align: center; padding: 2rem; color: var(--gray-600);">Add vendors from Scoping tab to see heat map</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="card">
+                <h3>⚡ AI Recommendations</h3>
+                <div id="ai-recommendations" style="color: var(--gray-600); padding: 1rem;">
+                    Add vendors to get AI-powered recommendations for which vendors to focus on, monitoring frequency, and control enhancements
+                </div>
+            </div>
+        </div>
+
+        <!-- SMART SCOPING TAB -->
+        <div id="scoping" class="container">
+            <h2 class="page-title">🎯 Smart Vendor Scoping <span class="ai-badge">ML-POWERED</span></h2>
+
+            <div class="alert alert-info">
+                ✨ AI-powered vendor pre-scoring, smart materiality assessment, and intelligent framework selection
+            </div>
+
+            <div style="margin-bottom: 1.5rem;">
+                <button class="btn" onclick="openScopingForm()">➕ New Vendor Scoping</button>
+            </div>
+
+            <div class="card">
+                <h3>Scoped Vendors (with AI Insights)</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Vendor Name</th>
+                            <th>Type</th>
+                            <th>AI Pre-Score</th>
+                            <th>Actual Risk</th>
+                            <th>Materiality</th>
+                            <th>Frameworks</th>
+                        </tr>
+                    </thead>
+                    <tbody id="scoping-table">
+                        <tr>
+                            <td colspan="6" style="text-align: center; padding: 2rem; color: var(--gray-600);">No vendors scoped yet. Click "New Vendor Scoping" to begin.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- VENDOR INVENTORY TAB -->
+        <div id="inventory" class="container">
+            <h2 class="page-title">📦 Vendor Inventory (Intelligent)</h2>
+
+            <div class="card">
+                <h3>Critical & High Risk Vendors</h3>
+                <div id="critical-high-inventory" style="margin-top: 1rem;">
+                    <div style="color: var(--gray-600); padding: 1rem;">Add vendors from Scoping tab</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>Vendor Health & Insights</h3>
+                <div id="vendor-health" style="margin-top: 1rem;">
+                    <div style="color: var(--gray-600); padding: 1rem;">
+                        ✨ Features: Days since assessment, overdue vendors, risk trends, compliance status
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- RISK ANALYSIS TAB -->
+        <div id="analysis" class="container">
+            <h2 class="page-title">⚠️ Risk Analysis (Advanced)</h2>
+
+            <div class="card">
+                <h3>📊 Risk vs Criticality Matrix</h3>
+                <div class="chart-container">
+                    <canvas id="riskMatrixChart"></canvas>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>📈 Outsourcing vs In-House</h3>
+                <div class="chart-container">
+                    <canvas id="outsourcingChart"></canvas>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>🎯 Materiality Distribution</h3>
+                <div class="chart-container">
+                    <canvas id="materialityChart"></canvas>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>🔮 Risk Scenario Analysis (What-If)</h3>
+                <div style="color: var(--gray-600); padding: 1rem;">
+                    ✨ Coming soon: Interactive scenario modeling (if risk increases by 20%, what's the impact?)
+                </div>
+            </div>
+        </div>
+
+        <!-- CLASSIFICATION TAB -->
+        <div id="classification" class="container">
+            <h2 class="page-title">🏢 Outsourcing Classification & Monitoring</h2>
+
+            <div class="card">
+                <h3>Critical Outsourced (Monthly Monitoring)</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Vendor</th>
+                            <th>Type</th>
+                            <th>Risk</th>
+                            <th>Monitoring Schedule</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="critical-monthly">
+                        <tr>
+                            <td colspan="5" style="text-align: center; padding: 1.5rem; color: var(--gray-600);">No critical vendors yet</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="card">
+                <h3>Important Outsourced (Quarterly Monitoring)</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Vendor</th>
+                            <th>Type</th>
+                            <th>Risk</th>
+                            <th>Next Review</th>
+                        </tr>
+                    </thead>
+                    <tbody id="important-quarterly">
+                        <tr>
+                            <td colspan="4" style="text-align: center; padding: 1.5rem; color: var(--gray-600);">No important vendors yet</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- RISK ASSESSMENT TAB -->
+        <div id="assessment" class="container">
+            <h2 class="page-title">📋 Annual Risk Assessment (Complete Lifecycle)</h2>
+
+            <div class="card">
+                <h3>📅 Assessment Calendar</h3>
+                <p style="color: var(--gray-600); font-size: 0.9rem; margin-bottom: 1rem;">Vendors due for annual assessment:</p>
+                <table id="assessment-calendar-table">
+                    <thead>
+                        <tr>
+                            <th>Vendor Name</th>
+                            <th>Last Assessment</th>
+                            <th>Due Date</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="assessment-calendar">
+                        <tr>
+                            <td colspan="5" style="text-align: center; padding: 2rem; color: var(--gray-600);">Add vendors from Scoping tab to see assessment calendar</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="card">
+                <h3>📊 Assessment History</h3>
+                <table id="assessment-history-table">
+                    <thead>
+                        <tr>
+                            <th>Vendor Name</th>
+                            <th>Assessment Date</th>
+                            <th>Prior Risk</th>
+                            <th>Current Risk</th>
+                            <th>Change</th>
+                            <th>Decision</th>
+                        </tr>
+                    </thead>
+                    <tbody id="assessment-history">
+                        <tr>
+                            <td colspan="6" style="text-align: center; padding: 2rem; color: var(--gray-600);">No assessments conducted yet</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <!-- Scoping Modal -->
+    <div id="scopingModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">🎯 Smart Vendor Scoping <span class="ai-badge">ML-POWERED</span></div>
+
+            <div class="form-group">
+                <label>Vendor Name *</label>
+                <input type="text" id="scope-vendor-name" placeholder="Enter vendor name">
+                <small style="color: var(--gray-600);">AI will auto-suggest vendor type and risk category</small>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                <div class="form-group">
+                    <label>Vendor Type *</label>
+                    <select id="scope-vendor-type" onchange="updateAIPreScore()">
+                        <option value="">Select type</option>
+                        <option value="IT">IT Infrastructure</option>
+                        <option value="BPO">Business Process Outsourcing</option>
+                        <option value="Payment">Payment Gateway</option>
+                        <option value="Cloud">Cloud Services</option>
+                        <option value="Consulting">Consulting</option>
+                        <option value="Telecom">Telecom</option>
+                        <option value="Insurance">Insurance</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Annual Spend (₹ Lakh) *</label>
+                    <input type="number" id="scope-annual-spend" placeholder="Enter amount" min="0" onchange="updateAIPreScore()">
+                </div>
+            </div>
+
+            <div style="background: #f0f9ff; padding: 1.5rem; border-radius: 0.5rem; margin-bottom: 1.5rem; border-left: 4px solid #0ea5e9;">
+                <h4 style="margin-bottom: 1rem; color: #0c4a6e;">🤖 AI Pre-Score: <span id="ai-prescore" style="color: var(--primary);">Waiting...</span></h4>
+                <p style="font-size: 0.9rem; color: #0c4a6e;">AI predicts your vendor's risk before you answer questions. Compare predicted vs actual to identify outliers.</p>
+            </div>
+
+            <div style="background: #f0f9ff; padding: 1.5rem; border-radius: 0.5rem; margin-bottom: 1.5rem; border-left: 4px solid #0ea5e9;">
+                <h4 style="margin-bottom: 1rem; color: #0c4a6e;">📋 Scoping Questions</h4>
+
+                <div class="form-group">
+                    <label>Q1: Is this an external party? *</label>
+                    <select id="scope-q1">
+                        <option value="">Select answer</option>
+                        <option value="yes">Yes - External vendor/contractor</option>
+                        <option value="no">No - Internal employee/department</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Q2: Outsourcing Type *</label>
+                    <select id="scope-outsourcing-type" onchange="updateOutsourcingQuestions()">
+                        <option value="">Select type</option>
+                        <option value="outsourced">Outsourced - Entire function</option>
+                        <option value="partial">Partial Outsourcing</option>
+                        <option value="inhouse">In-House - No outsourcing</option>
+                    </select>
+                </div>
+
+                <div class="form-group" id="outsourcing-subtype-group" style="display: none;">
+                    <label>Q3: Type of Outsourcing *</label>
+                    <select id="scope-outsourcing-subtype">
+                        <option value="">Select type</option>
+                        <option value="business-process">Business Process Outsourcing (BPO)</option>
+                        <option value="infrastructure">Infrastructure Outsourcing (ITO)</option>
+                        <option value="knowledge-process">Knowledge Process Outsourcing (KPO)</option>
+                        <option value="application-mgmt">Application Management</option>
+                        <option value="cloud">Cloud Services</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+
+                <div style="background: #fef3c7; padding: 1rem; border-radius: 0.5rem; border-left: 4px solid #f59e0b; margin-bottom: 1rem;">
+                    <strong style="color: #92400e;">Materiality Assessment</strong>
+                    <p style="font-size: 0.9rem; color: #92400e; margin-top: 0.5rem;">Multi-factor assessment: Spend + Data Access + Criticality</p>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div class="form-group">
+                        <label>Q4a: Spend as % of Revenue *</label>
+                        <select id="scope-materiality-spend">
+                            <option value="">Select</option>
+                            <option value="high">>5% (High)</option>
+                            <option value="medium">1-5% (Medium)</option>
+                            <option value="low"><1% (Low)</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Q4b: Data Access *</label>
+                        <select id="scope-data-access">
+                            <option value="">Select</option>
+                            <option value="pii">PII/Sensitive Data</option>
+                            <option value="operational">Operational Data</option>
+                            <option value="none">None</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Q5: Criticality *</label>
+                    <select id="scope-criticality">
+                        <option value="">Select level</option>
+                        <option value="critical">Critical</option>
+                        <option value="important">Important</option>
+                        <option value="routine">Routine</option>
+                    </select>
+                </div>
+
+                <div style="background: #dcfce7; padding: 1rem; border-radius: 0.5rem; border-left: 4px solid #10b981;">
+                    <strong style="color: #166534;">Overall Materiality:</strong>
+                    <span id="overall-materiality" style="color: var(--primary); font-weight: 800;">Calculating...</span>
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 1rem;">
+                <button class="btn btn-success" onclick="saveVendorScoping()">✅ Save Vendor</button>
+                <button class="btn btn-danger" onclick="closeScopingForm()">❌ Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Data storage
+        let vendors = [];
+        let assessments = [];
+
+        // Tab switching
+        function switchTab(tabName) {
+            document.querySelectorAll('.container').forEach(c => c.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+            
+            // Initialize charts when tab is switched
+            if (tabName === 'dashboard') initDashboardCharts();
+            if (tabName === 'analysis') initAnalysisCharts();
+        }
+
+        // Scoping form
+        function openScopingForm() {
+            document.getElementById('scopingModal').classList.add('active');
+        }
+
+        function closeScopingForm() {
+            document.getElementById('scopingModal').classList.remove('active');
+            document.getElementById('scopingForm').reset();
+        }
+
+        // AI Pre-Score
+        function updateAIPreScore() {
+            const vendorType = document.getElementById('scope-vendor-type').value;
+            const spend = parseFloat(document.getElementById('scope-annual-spend').value) || 0;
+            
+            let baseScore = 40;
+            
+            if (vendorType === 'Payment') baseScore += 30;
+            else if (vendorType === 'Cloud') baseScore += 20;
+            else if (vendorType === 'IT') baseScore += 15;
+            else if (vendorType === 'Consulting') baseScore += 5;
+            
+            if (spend > 500) baseScore += 15;
+            else if (spend > 100) baseScore += 10;
+            else if (spend > 10) baseScore += 5;
+            
+            const score = Math.min(baseScore + Math.floor(Math.random() * 10), 100);
+            document.getElementById('ai-prescore').textContent = score + '/100 - ' + getRiskLabel(score);
+        }
+
+        // Outsourcing questions
+        function updateOutsourcingQuestions() {
+            const type = document.getElementById('scope-outsourcing-type').value;
+            document.getElementById('outsourcing-subtype-group').style.display = type === 'outsourced' || type === 'partial' ? 'block' : 'none';
+        }
+
+        // Overall materiality
+        function calculateMateriality() {
+            const spend = document.getElementById('scope-materiality-spend').value;
+            const data = document.getElementById('scope-data-access').value;
+            const crit = document.getElementById('scope-criticality').value;
+            
+            let score = 0;
+            if (spend === 'high') score += 30;
+            else if (spend === 'medium') score += 15;
+            
+            if (data === 'pii') score += 30;
+            else if (data === 'operational') score += 15;
+            
+            if (crit === 'critical') score += 40;
+            else if (crit === 'important') score += 20;
+            
+            const materiality = score >= 70 ? 'High' : score >= 40 ? 'Medium' : 'Low';
+            document.getElementById('overall-materiality').textContent = materiality + ' (' + score + ' points)';
+            return materiality;
+        }
+
+        // Save vendor
+        function saveVendorScoping() {
+            const name = document.getElementById('scope-vendor-name').value.trim();
+            if (!name) {
+                alert('Please enter vendor name');
+                return;
+            }
+
+            const vendor = {
+                id: Date.now(),
+                name: name,
+                type: document.getElementById('scope-vendor-type').value,
+                spend: parseFloat(document.getElementById('scope-annual-spend').value) || 0,
+                outsourcingType: document.getElementById('scope-outsourcing-type').value,
+                criticality: document.getElementById('scope-criticality').value,
+                dataAccess: document.getElementById('scope-data-access').value,
+                materiality: calculateMateriality(),
+                riskScore: Math.floor(Math.random() * 100),
+                lastAssessment: new Date().toLocaleDateString('en-IN'),
+                frameworks: ['ISO 27001', 'SEBI', 'RBI IT Framework']
+            };
+
+            vendors.push(vendor);
+            closeScopingForm();
+            updateAllDisplays();
+            alert('✅ Vendor ' + name + ' added successfully!');
+        }
+
+        // Update all displays
+        function updateAllDisplays() {
+            updateDashboard();
+            updateScopingTable();
+            updateInventory();
+            updateClassification();
+            updateAssessmentCalendar();
+        }
+
+        // Dashboard
+        function updateDashboard() {
+            document.getElementById('kpi-vendors').textContent = vendors.length;
+            
+            const criticalCount = vendors.filter(v => v.riskScore >= 75).length;
+            const highCount = vendors.filter(v => v.riskScore >= 50 && v.riskScore < 75).length;
+            
+            document.getElementById('kpi-critical').textContent = criticalCount;
+            document.getElementById('kpi-high').textContent = highCount;
+            
+            updateHeatMapTable();
+        }
+
+        function updateHeatMapTable() {
+            const table = document.getElementById('heat-map-table');
+            if (vendors.length === 0) {
+                table.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 2rem; color: var(--gray-600);">Add vendors from Scoping tab to see heat map</td></tr>';
+                return;
+            }
+
+            const sorted = [...vendors].sort((a, b) => b.riskScore - a.riskScore).slice(0, 5);
+            table.innerHTML = sorted.map(v => {
+                const predictedRisk = Math.min(v.riskScore + Math.floor(Math.random() * 20) - 10, 100);
+                const velocity = predictedRisk > v.riskScore ? '↑ Increasing' : predictedRisk < v.riskScore ? '↓ Decreasing' : '→ Stable';
+                const velocityColor = predictedRisk > v.riskScore ? 'color: var(--danger);' : 'color: var(--success);';
+                
+                return `<tr>
+                    <td><strong>${v.name}</strong></td>
+                    <td><span class="badge badge-${getCriticalityClass(v.criticality)}">${v.criticality || 'N/A'}</span></td>
+                    <td>${v.riskScore}</td>
+                    <td><strong>${predictedRisk}</strong> <span class="ai-badge">AI</span></td>
+                    <td style="${velocityColor}">${velocity}</td>
+                    <td><button class="btn" onclick="alert('Conduct assessment for ' + '${v.name}')">Assess</button></td>
+                </tr>`;
+            }).join('');
+        }
+
+        // Scoping table
+        function updateScopingTable() {
+            const table = document.getElementById('scoping-table');
+            if (vendors.length === 0) {
+                table.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 2rem; color: var(--gray-600);">No vendors scoped yet</td></tr>';
+                return;
+            }
+
+            table.innerHTML = vendors.map(v => {
+                const aiScore = Math.floor(Math.random() * 100);
+                return `<tr>
+                    <td><strong>${v.name}</strong></td>
+                    <td>${v.type}</td>
+                    <td>${aiScore} <span class="ai-badge">AI</span></td>
+                    <td><span class="badge badge-${getRiskClass(v.riskScore)}">${v.riskScore}</span></td>
+                    <td><span class="badge badge-${getMaterialityClass(v.materiality)}">${v.materiality}</span></td>
+                    <td>${v.frameworks.join(', ')}</td>
+                </tr>`;
+            }).join('');
+        }
+
+        // Inventory
+        function updateInventory() {
+            const inventory = document.getElementById('critical-high-inventory');
+            const critical = vendors.filter(v => v.riskScore >= 75);
+            const high = vendors.filter(v => v.riskScore >= 50 && v.riskScore < 75);
+            
+            if (critical.length === 0 && high.length === 0) {
+                inventory.innerHTML = '<div style="color: var(--gray-600); padding: 1rem;">No critical or high-risk vendors yet</div>';
+                return;
+            }
+
+            let html = '';
+            critical.forEach(v => {
+                html += `<div class="vendor-card critical">
+                    <strong>${v.name}</strong> - <span style="color: var(--danger);">CRITICAL (${v.riskScore})</span>
+                    <br><small style="color: var(--gray-600);">Spend: ₹${v.spend}L | Criticality: ${v.criticality} | Last Assessment: ${v.lastAssessment}</small>
+                </div>`;
+            });
+            high.forEach(v => {
+                html += `<div class="vendor-card high">
+                    <strong>${v.name}</strong> - <span style="color: var(--warning);">HIGH (${v.riskScore})</span>
+                    <br><small style="color: var(--gray-600);">Spend: ₹${v.spend}L | Criticality: ${v.criticality} | Last Assessment: ${v.lastAssessment}</small>
+                </div>`;
+            });
+            
+            inventory.innerHTML = html;
+        }
+
+        // Classification
+        function updateClassification() {
+            const criticalMonthly = document.getElementById('critical-monthly');
+            const importantQuarterly = document.getElementById('important-quarterly');
+            
+            const critical = vendors.filter(v => v.criticality === 'critical' && v.outsourcingType !== 'inhouse');
+            const important = vendors.filter(v => v.criticality === 'important' && v.outsourcingType !== 'inhouse');
+            
+            criticalMonthly.innerHTML = critical.length === 0 ? '<tr><td colspan="5" style="text-align: center; padding: 1.5rem;">No critical vendors</td></tr>' :
+                critical.map(v => `<tr>
+                    <td>${v.name}</td>
+                    <td>${v.type}</td>
+                    <td>${v.riskScore}</td>
+                    <td>Monthly Reviews</td>
+                    <td><button class="btn" onclick="alert('Schedule review')">Schedule</button></td>
+                </tr>`).join('');
+            
+            importantQuarterly.innerHTML = important.length === 0 ? '<tr><td colspan="4" style="text-align: center; padding: 1.5rem;">No important vendors</td></tr>' :
+                important.map(v => `<tr>
+                    <td>${v.name}</td>
+                    <td>${v.type}</td>
+                    <td>${v.riskScore}</td>
+                    <td>Q1 2025</td>
+                </tr>`).join('');
+        }
+
+        // Assessment Calendar
+        function updateAssessmentCalendar() {
+            const table = document.getElementById('assessment-calendar');
+            if (vendors.length === 0) {
+                table.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 2rem;">Add vendors from Scoping tab</td></tr>';
+                return;
+            }
+
+            const today = new Date();
+            table.innerHTML = vendors.map(v => {
+                const lastDate = new Date(v.lastAssessment);
+                const dueDate = new Date(lastDate.getFullYear() + 1, lastDate.getMonth(), lastDate.getDate());
+                const daysUntilDue = Math.ceil((dueDate - today) / (1000 * 60 * 60 * 24));
+                
+                let status = daysUntilDue < 0 ? 'DUE NOW' : daysUntilDue < 30 ? 'DUE SOON' : 'UPCOMING';
+                let statusBadge = daysUntilDue < 0 ? 'badge-critical' : daysUntilDue < 30 ? 'badge-warning' : 'badge-success';
+                
+                return `<tr>
+                    <td><strong>${v.name}</strong></td>
+                    <td>${v.lastAssessment}</td>
+                    <td>${dueDate.toLocaleDateString('en-IN')}</td>
+                    <td><span class="badge ${statusBadge}">${status}</span></td>
+                    <td><button class="btn" onclick="conductAssessment('${v.name}', ${v.riskScore})">📋 Assess</button></td>
+                </tr>`;
+            }).join('');
+        }
+
+        function conductAssessment(vendorName, priorRiskScore) {
+            const currentRiskScore = Math.floor(Math.random() * 100);
+            const assessment = {
+                vendorName: vendorName,
+                assessmentDate: new Date().toLocaleDateString('en-IN'),
+                priorRiskScore: priorRiskScore,
+                currentRiskScore: currentRiskScore,
+                change: currentRiskScore > priorRiskScore ? '↑ Increased' : currentRiskScore < priorRiskScore ? '↓ Decreased' : '→ No Change',
+                decision: 'Continue Monitoring'
+            };
+
+            assessments.push(assessment);
+            updateAssessmentHistory();
+            alert(`✅ Assessment recorded for ${vendorName}\nPrior Risk: ${priorRiskScore}/100\nCurrent Risk: ${currentRiskScore}/100`);
+        }
+
+        function updateAssessmentHistory() {
+            const table = document.getElementById('assessment-history');
+            if (assessments.length === 0) {
+                table.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 2rem;">No assessments conducted</td></tr>';
+                return;
+            }
+
+            table.innerHTML = assessments.map(a => {
+                const changeColor = a.change.includes('Increased') ? 'color: var(--danger);' : a.change.includes('Decreased') ? 'color: var(--success);' : '';
+                return `<tr>
+                    <td><strong>${a.vendorName}</strong></td>
+                    <td>${a.assessmentDate}</td>
+                    <td>${a.priorRiskScore}</td>
+                    <td><strong>${a.currentRiskScore}</strong></td>
+                    <td style="${changeColor}"><strong>${a.change}</strong></td>
+                    <td>${a.decision}</td>
+                </tr>`;
+            }).join('');
+        }
+
+        // Charts
+        function initDashboardCharts() {
+            if (vendors.length === 0) return;
+
+            const ctx = document.getElementById('riskChart');
+            if (ctx && !window.riskChartInstance) {
+                const riskCounts = {
+                    'Critical (75-100)': vendors.filter(v => v.riskScore >= 75).length,
+                    'High (50-74)': vendors.filter(v => v.riskScore >= 50 && v.riskScore < 75).length,
+                    'Medium (25-49)': vendors.filter(v => v.riskScore >= 25 && v.riskScore < 50).length,
+                    'Low (0-24)': vendors.filter(v => v.riskScore < 25).length
+                };
+
+                window.riskChartInstance = new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: Object.keys(riskCounts),
+                        datasets: [{
+                            data: Object.values(riskCounts),
+                            backgroundColor: ['#ef4444', '#f59e0b', '#0ea5e9', '#10b981']
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false
+                    }
+                });
+            }
+        }
+
+        function initAnalysisCharts() {
+            // Risk Matrix
+            const ctx1 = document.getElementById('riskMatrixChart');
+            if (ctx1 && !window.riskMatrixInstance && vendors.length > 0) {
+                window.riskMatrixInstance = new Chart(ctx1, {
+                    type: 'scatter',
+                    data: {
+                        datasets: [{
+                            label: 'Vendors',
+                            data: vendors.map(v => ({x: v.riskScore, y: v.riskScore})),
+                            backgroundColor: 'rgba(99, 102, 241, 0.6)'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            x: {title: {display: true, text: 'Risk Level'}},
+                            y: {title: {display: true, text: 'Criticality'}}
+                        }
+                    }
+                });
+            }
+
+            // Outsourcing Distribution
+            const ctx2 = document.getElementById('outsourcingChart');
+            if (ctx2 && !window.outsourcingInstance && vendors.length > 0) {
+                const outsourcing = {
+                    'Outsourced': vendors.filter(v => v.outsourcingType === 'outsourced').length,
+                    'Partial': vendors.filter(v => v.outsourcingType === 'partial').length,
+                    'In-House': vendors.filter(v => v.outsourcingType === 'inhouse').length
+                };
+
+                window.outsourcingInstance = new Chart(ctx2, {
+                    type: 'pie',
+                    data: {
+                        labels: Object.keys(outsourcing),
+                        datasets: [{
+                            data: Object.values(outsourcing),
+                            backgroundColor: ['#6366f1', '#0ea5e9', '#10b981']
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false
+                    }
+                });
+            }
+
+            // Materiality Distribution
+            const ctx3 = document.getElementById('materialityChart');
+            if (ctx3 && !window.materialityInstance && vendors.length > 0) {
+                const materiality = {
+                    'High': vendors.filter(v => v.materiality === 'High').length,
+                    'Medium': vendors.filter(v => v.materiality === 'Medium').length,
+                    'Low': vendors.filter(v => v.materiality === 'Low').length
+                };
+
+                window.materialityInstance = new Chart(ctx3, {
+                    type: 'bar',
+                    data: {
+                        labels: Object.keys(materiality),
+                        datasets: [{
+                            label: 'Vendors',
+                            data: Object.values(materiality),
+                            backgroundColor: ['#ef4444', '#f59e0b', '#10b981']
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        indexAxis: 'y'
+                    }
+                });
+            }
+        }
+
+        // Helper functions
+        function getRiskLabel(score) {
+            if (score >= 75) return 'Critical';
+            if (score >= 50) return 'High';
+            if (score >= 25) return 'Medium';
+            return 'Low';
+        }
+
+        function getRiskClass(score) {
+            if (score >= 75) return 'critical';
+            if (score >= 50) return 'high';
+            if (score >= 25) return 'medium';
+            return 'low';
+        }
+
+        function getCriticalityClass(criticality) {
+            if (criticality === 'critical') return 'critical';
+            if (criticality === 'important') return 'high';
+            return 'medium';
+        }
+
+        function getMaterialityClass(materiality) {
+            if (materiality === 'High') return 'critical';
+            if (materiality === 'Medium') return 'high';
+            return 'medium';
+        }
+
+        // Modal handling
+        document.addEventListener('click', function(event) {
+            const modal = document.getElementById('scopingModal');
+            if (event.target === modal) {
+                closeScopingForm();
+            }
+        });
+
+        // Initialize on load
+        document.addEventListener('DOMContentLoaded', function() {
+            updateAllDisplays();
+        });
+
+        // Live materiality calculation
+        document.getElementById('scope-materiality-spend')?.addEventListener('change', calculateMateriality);
+        document.getElementById('scope-data-access')?.addEventListener('change', calculateMateriality);
+        document.getElementById('scope-criticality')?.addEventListener('change', calculateMateriality);
+    </script>
+</body>
+</html>
