@@ -798,16 +798,62 @@
             </div>
         </div>
 
-        <!-- RISK ASSESSMENT TAB -->
+    <!-- RISK ASSESSMENT TAB -->
         <div id="assessment" class="container">
-            <h2 class="page-title">📋 Risk Assessment</h2>
+            <h2 class="page-title">📋 Annual Risk Assessment</h2>
+
+            <div class="flex-between" style="margin-bottom: 1.5rem;">
+                <div></div>
+                <button class="btn btn-primary" onclick="alert('First add vendors from Scoping tab. Then assessments will appear here.')">ℹ️ How to Conduct Assessment</button>
+            </div>
+
             <div class="card">
-                <p style="color: var(--gray-600); text-align: center; padding: 2rem;">Risk assessment wizards for individual vendors will appear here after they are added to inventory.</p>
+                <h3 style="margin-bottom: 1rem;">📅 Assessment Calendar - Vendors Due for Assessment</h3>
+                <p style="color: var(--gray-600); font-size: 0.9rem; margin-bottom: 1rem;">Add vendors from the Scoping tab to see assessment schedule here.</p>
+                <table id="assessment-calendar-table">
+                    <thead>
+                        <tr>
+                            <th>Vendor Name</th>
+                            <th>Last Assessment</th>
+                            <th>Due Date</th>
+                            <th>Days Until Due</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="assessment-calendar">
+                        <tr>
+                            <td colspan="6" style="text-align: center; padding: 2rem; color: var(--gray-600);">No vendors in inventory. Go to Scoping tab to add vendors.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="card">
+                <h3 style="margin-bottom: 1rem;">📊 Assessment History & Results</h3>
+                <table id="assessment-history-table">
+                    <thead>
+                        <tr>
+                            <th>Vendor Name</th>
+                            <th>Assessment Date</th>
+                            <th>Prior Risk Score</th>
+                            <th>Current Risk Score</th>
+                            <th>Change</th>
+                            <th>Decision</th>
+                        </tr>
+                    </thead>
+                    <tbody id="assessment-history">
+                        <tr>
+                            <td colspan="6" style="text-align: center; padding: 2rem; color: var(--gray-600);">No assessments conducted yet. Conduct assessments from the calendar above.</td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
+
     </main>
 
-    <!-- Scoping Modal -->
+    <!-- Scoping Modle -->
     <div id="scopingModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">🎯 Comprehensive Vendor Scoping Questionnaire</div>
