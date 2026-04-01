@@ -1,0 +1,1361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spade v2 - Advanced TPRM with Vendor Inventory</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --info: #0ea5e9;
+            --gray-50: #f9fafb;
+            --gray-100: #f3f4f6;
+            --gray-200: #e5e7eb;
+            --gray-300: #d1d5db;
+            --gray-600: #4b5563;
+            --gray-900: #111827;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: var(--gray-900);
+            min-height: 100vh;
+        }
+
+        /* Header */
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1.5rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-brand {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .brand-logo {
+            font-size: 2rem;
+            font-weight: bold;
+        }
+
+        .brand-info h1 {
+            font-size: 1.75rem;
+            font-weight: 800;
+            margin: 0;
+        }
+
+        .brand-info p {
+            font-size: 0.75rem;
+            opacity: 0.95;
+            margin: 0.25rem 0 0 0;
+        }
+
+        /* Navigation */
+        nav {
+            background: white;
+            border-bottom: 1px solid var(--gray-200);
+            position: sticky;
+            top: 70px;
+            z-index: 99;
+            overflow-x: auto;
+        }
+
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            gap: 0;
+        }
+
+        .nav-btn {
+            padding: 1rem 1.5rem;
+            border: none;
+            background: none;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--gray-600);
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+            white-space: nowrap;
+        }
+
+        .nav-btn:hover {
+            color: var(--primary);
+        }
+
+        .nav-btn.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+        }
+
+        /* Main */
+        main {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem 1rem;
+        }
+
+        .container {
+            display: none;
+        }
+
+        .container.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .page-title {
+            color: white;
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 1.5rem;
+        }
+
+        .card {
+            background: white;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+            border-left: 5px solid var(--primary);
+        }
+
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .kpi-card {
+            background: white;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            border-left: 5px solid var(--primary);
+        }
+
+        .kpi-card.danger {
+            border-left-color: var(--danger);
+        }
+
+        .kpi-card.warning {
+            border-left-color: var(--warning);
+        }
+
+        .kpi-card.success {
+            border-left-color: var(--success);
+        }
+
+        .kpi-label {
+            color: var(--gray-600);
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .kpi-value {
+            font-size: 2.25rem;
+            font-weight: bold;
+            color: var(--primary);
+        }
+
+        .kpi-card.danger .kpi-value {
+            color: var(--danger);
+        }
+
+        .kpi-card.warning .kpi-value {
+            color: var(--warning);
+        }
+
+        .kpi-card.success .kpi-value {
+            color: var(--success);
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+
+        /* Tables */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 0.5rem;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        thead {
+            background: var(--gray-50);
+        }
+
+        th {
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+            color: var(--gray-900);
+            border-bottom: 2px solid var(--gray-200);
+            font-size: 0.9rem;
+        }
+
+        td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--gray-200);
+        }
+
+        tbody tr:hover {
+            background: var(--gray-50);
+        }
+
+        /* Badges */
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.4rem 0.8rem;
+            border-radius: 0.25rem;
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+
+        .badge-success {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .badge-warning {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .badge-danger {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .badge-info {
+            background: #dbeafe;
+            color: #0c4a6e;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            overflow-y: auto;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 0.75rem;
+            padding: 2rem;
+            max-width: 800px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-header {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 1.5rem;
+            color: var(--gray-900);
+        }
+
+        /* Forms */
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: var(--gray-900);
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--gray-300);
+            border-radius: 0.375rem;
+            font-size: 1rem;
+            font-family: inherit;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1rem;
+        }
+
+        .checkbox-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin: 0;
+            font-weight: normal;
+        }
+
+        input[type="checkbox"] {
+            width: auto;
+        }
+
+        /* Risk categorization colors */
+        .risk-critical {
+            background: #fee2e2;
+            border-left-color: #991b1b;
+        }
+
+        .risk-high {
+            background: #fef3c7;
+            border-left-color: #92400e;
+        }
+
+        .risk-medium {
+            background: #fce7f3;
+            border-left-color: #831843;
+        }
+
+        .risk-low {
+            background: #d1fae5;
+            border-left-color: #065f46;
+        }
+
+        /* Outsourcing type colors */
+        .outsourcing-critical {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .outsourcing-important {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .outsourcing-routine {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        /* Materiality level */
+        .materiality-high {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .materiality-medium {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .materiality-low {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .flex-between {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .flex-gap {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        footer {
+            background: var(--gray-900);
+            color: #9ca3af;
+            text-align: center;
+            padding: 1.5rem;
+            margin-top: 3rem;
+        }
+
+        .vendor-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .stat-box {
+            background: var(--gray-50);
+            padding: 1rem;
+            border-radius: 0.5rem;
+            border-left: 4px solid var(--primary);
+        }
+
+        .stat-box h4 {
+            font-size: 0.9rem;
+            color: var(--gray-600);
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-value {
+            font-size: 1.75rem;
+            font-weight: bold;
+            color: var(--primary);
+        }
+
+        @media (max-width: 768px) {
+            .nav-container {
+                flex-wrap: wrap;
+            }
+
+            .nav-btn {
+                padding: 0.75rem;
+            }
+
+            table {
+                font-size: 0.85rem;
+            }
+
+            th, td {
+                padding: 0.75rem 0.5rem;
+            }
+        }
+
+        .info-box {
+            background: #f0f9ff;
+            border-left: 4px solid #0ea5e9;
+            padding: 1rem;
+            border-radius: 0.375rem;
+            margin-bottom: 1rem;
+        }
+
+        .info-box p {
+            margin: 0;
+            font-size: 0.9rem;
+            color: #0c4a6e;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="header-content">
+            <div class="header-brand">
+                <div class="brand-logo">⚙️</div>
+                <div class="brand-info">
+                    <h1>Spade v2</h1>
+                    <p>Advanced TPRM with Vendor Inventory & Risk Categorization</p>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Navigation -->
+    <nav>
+        <div class="nav-container">
+            <button class="nav-btn active" onclick="switchTab('dashboard')">📊 Dashboard</button>
+            <button class="nav-btn" onclick="switchTab('scoping')">🎯 Scoping</button>
+            <button class="nav-btn" onclick="switchTab('inventory')">📦 Vendor Inventory</button>
+            <button class="nav-btn" onclick="switchTab('risk-analysis')">⚠️ Risk Analysis</button>
+            <button class="nav-btn" onclick="switchTab('outsourcing')">🏢 Outsourcing Classification</button>
+            <button class="nav-btn" onclick="switchTab('assessment')">📋 Risk Assessment</button>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main>
+        <!-- DASHBOARD -->
+        <div id="dashboard" class="container active">
+            <h2 class="page-title">📊 Dashboard</h2>
+
+            <div class="kpi-grid">
+                <div class="kpi-card">
+                    <div class="kpi-label">Total Vendors</div>
+                    <div class="kpi-value" id="total-vendors">0</div>
+                </div>
+                <div class="kpi-card danger">
+                    <div class="kpi-label">Critical Risk</div>
+                    <div class="kpi-value" id="critical-count">0</div>
+                </div>
+                <div class="kpi-card warning">
+                    <div class="kpi-label">High Risk</div>
+                    <div class="kpi-value" id="high-count">0</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">Outsourced Vendors</div>
+                    <div class="kpi-value" id="outsourced-count">0</div>
+                </div>
+                <div class="kpi-card danger">
+                    <div class="kpi-label">High Materiality</div>
+                    <div class="kpi-value" id="high-materiality">0</div>
+                </div>
+                <div class="kpi-card success">
+                    <div class="kpi-label">Pending Scoping</div>
+                    <div class="kpi-value" id="pending-scoping">0</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3 style="margin-bottom: 1.5rem;">Vendor Summary</h3>
+                <div class="vendor-stats" id="vendor-summary">
+                    <div class="stat-box">
+                        <h4>In-House Services</h4>
+                        <div class="stat-value" id="inhouse-count">0</div>
+                    </div>
+                    <div class="stat-box">
+                        <h4>Outsourced Services</h4>
+                        <div class="stat-value" id="outsourced-services">0</div>
+                    </div>
+                    <div class="stat-box">
+                        <h4>Critical Functions</h4>
+                        <div class="stat-value" id="critical-functions">0</div>
+                    </div>
+                    <div class="stat-box">
+                        <h4>Important Functions</h4>
+                        <div class="stat-value" id="important-functions">0</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SCOPING TAB -->
+        <div id="scoping" class="container">
+            <h2 class="page-title">🎯 Comprehensive Vendor Scoping</h2>
+
+            <div class="flex-between" style="margin-bottom: 1.5rem;">
+                <div></div>
+                <button class="btn btn-primary" onclick="openScopingForm()">➕ New Vendor Scoping</button>
+            </div>
+
+            <div class="card">
+                <h3 style="margin-bottom: 1rem;">Scoped Vendors</h3>
+                <table id="scoped-vendors-table">
+                    <thead>
+                        <tr>
+                            <th>Vendor Name</th>
+                            <th>Vendor Type</th>
+                            <th>Outsourcing Type</th>
+                            <th>Materiality</th>
+                            <th>Annual Spend (₹L)</th>
+                            <th>Inherent Risk</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="scoped-vendors">
+                        <tr>
+                            <td colspan="7" style="text-align: center; padding: 2rem; color: var(--gray-600);">No vendors scoped yet. Click "New Vendor Scoping" to add one.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- VENDOR INVENTORY TAB -->
+        <div id="inventory" class="container">
+            <h2 class="page-title">📦 Vendor Inventory</h2>
+
+            <div class="info-box">
+                <p><strong>Vendor Inventory:</strong> Categorized by Risk Rating, Outsourcing Type, and Materiality Level</p>
+            </div>
+
+            <div class="card">
+                <h3 style="margin-bottom: 1rem;">CRITICAL RISK VENDORS</h3>
+                <table id="critical-vendors-table">
+                    <thead>
+                        <tr>
+                            <th>Vendor Name</th>
+                            <th>Type</th>
+                            <th>Outsourcing</th>
+                            <th>Materiality</th>
+                            <th>Spend (₹L)</th>
+                            <th>Risk Score</th>
+                        </tr>
+                    </thead>
+                    <tbody id="critical-vendors">
+                        <tr>
+                            <td colspan="6" style="text-align: center; color: var(--gray-600);">No critical risk vendors</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="card">
+                <h3 style="margin-bottom: 1rem;">HIGH RISK VENDORS</h3>
+                <table id="high-vendors-table">
+                    <thead>
+                        <tr>
+                            <th>Vendor Name</th>
+                            <th>Type</th>
+                            <th>Outsourcing</th>
+                            <th>Materiality</th>
+                            <th>Spend (₹L)</th>
+                            <th>Risk Score</th>
+                        </tr>
+                    </thead>
+                    <tbody id="high-vendors">
+                        <tr>
+                            <td colspan="6" style="text-align: center; color: var(--gray-600);">No high risk vendors</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="card">
+                <h3 style="margin-bottom: 1rem;">MEDIUM & LOW RISK VENDORS</h3>
+                <table id="medium-low-vendors-table">
+                    <thead>
+                        <tr>
+                            <th>Vendor Name</th>
+                            <th>Type</th>
+                            <th>Outsourcing</th>
+                            <th>Materiality</th>
+                            <th>Spend (₹L)</th>
+                            <th>Risk Score</th>
+                        </tr>
+                    </thead>
+                    <tbody id="medium-low-vendors">
+                        <tr>
+                            <td colspan="6" style="text-align: center; color: var(--gray-600);">No medium/low risk vendors</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- RISK ANALYSIS TAB -->
+        <div id="risk-analysis" class="container">
+            <h2 class="page-title">⚠️ Risk Analysis by Category</h2>
+
+            <div class="card">
+                <h3 style="margin-bottom: 1rem;">Risk Distribution</h3>
+                <canvas id="riskChart" height="80"></canvas>
+            </div>
+
+            <div class="card">
+                <h3 style="margin-bottom: 1rem;">Outsourcing vs In-House</h3>
+                <canvas id="outsourcingChart" height="80"></canvas>
+            </div>
+
+            <div class="card">
+                <h3 style="margin-bottom: 1rem;">Materiality Analysis</h3>
+                <canvas id="materialityChart" height="80"></canvas>
+            </div>
+        </div>
+
+        <!-- OUTSOURCING CLASSIFICATION TAB -->
+        <div id="outsourcing" class="container">
+            <h2 class="page-title">🏢 Outsourcing Classification</h2>
+
+            <div class="info-box">
+                <p><strong>Outsourcing Classification:</strong> Vendors are categorized by outsourcing type and criticality level, helping identify concentration risk and dependencies.</p>
+            </div>
+
+            <div class="card">
+                <h3 style="margin-bottom: 1rem;">CRITICAL OUTSOURCED SERVICES</h3>
+                <p style="margin-bottom: 1rem; color: var(--gray-600); font-size: 0.9rem;">These vendors provide critical services through outsourcing. Requires HIGH monitoring.</p>
+                <table id="critical-outsourcing-table">
+                    <thead>
+                        <tr>
+                            <th>Vendor Name</th>
+                            <th>Service Category</th>
+                            <th>Materiality</th>
+                            <th>Annual Spend (₹L)</th>
+                            <th>Monitoring Frequency</th>
+                            <th>Risk Level</th>
+                        </tr>
+                    </thead>
+                    <tbody id="critical-outsourcing">
+                        <tr>
+                            <td colspan="6" style="text-align: center; color: var(--gray-600);">No critical outsourced services</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="card">
+                <h3 style="margin-bottom: 1rem;">IMPORTANT OUTSOURCED SERVICES</h3>
+                <p style="margin-bottom: 1rem; color: var(--gray-600); font-size: 0.9rem;">These vendors provide important but not critical services. Requires STANDARD monitoring.</p>
+                <table id="important-outsourcing-table">
+                    <thead>
+                        <tr>
+                            <th>Vendor Name</th>
+                            <th>Service Category</th>
+                            <th>Materiality</th>
+                            <th>Annual Spend (₹L)</th>
+                            <th>Monitoring Frequency</th>
+                            <th>Risk Level</th>
+                        </tr>
+                    </thead>
+                    <tbody id="important-outsourcing">
+                        <tr>
+                            <td colspan="6" style="text-align: center; color: var(--gray-600);">No important outsourced services</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="card">
+                <h3 style="margin-bottom: 1rem;">ROUTINE OUTSOURCED SERVICES</h3>
+                <p style="margin-bottom: 1rem; color: var(--gray-600); font-size: 0.9rem;">These vendors provide routine services. Requires BASIC monitoring.</p>
+                <table id="routine-outsourcing-table">
+                    <thead>
+                        <tr>
+                            <th>Vendor Name</th>
+                            <th>Service Category</th>
+                            <th>Materiality</th>
+                            <th>Annual Spend (₹L)</th>
+                            <th>Monitoring Frequency</th>
+                            <th>Risk Level</th>
+                        </tr>
+                    </thead>
+                    <tbody id="routine-outsourcing">
+                        <tr>
+                            <td colspan="6" style="text-align: center; color: var(--gray-600);">No routine outsourced services</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- RISK ASSESSMENT TAB -->
+        <div id="assessment" class="container">
+            <h2 class="page-title">📋 Risk Assessment</h2>
+            <div class="card">
+                <p style="color: var(--gray-600); text-align: center; padding: 2rem;">Risk assessment wizards for individual vendors will appear here after they are added to inventory.</p>
+            </div>
+        </div>
+    </main>
+
+    <!-- Scoping Modal -->
+    <div id="scopingModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">🎯 Comprehensive Vendor Scoping Questionnaire</div>
+
+            <div class="form-group">
+                <label>Vendor Name *</label>
+                <input type="text" id="scope-vendor-name" placeholder="Enter vendor name">
+            </div>
+
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Vendor Type *</label>
+                    <select id="scope-vendor-type">
+                        <option value="">Select type</option>
+                        <option value="IT">IT Infrastructure</option>
+                        <option value="BPO">Business Process Outsourcing</option>
+                        <option value="Payment">Payment Gateway</option>
+                        <option value="Consulting">Consulting</option>
+                        <option value="Telecom">Telecom</option>
+                        <option value="Insurance">Insurance</option>
+                        <option value="Cloud">Cloud Services</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Annual Contract Value (₹ Lakh) *</label>
+                    <input type="number" id="scope-annual-spend" placeholder="Enter amount" min="0">
+                </div>
+            </div>
+
+            <div style="background: #f0f9ff; padding: 1.5rem; border-radius: 0.5rem; margin-bottom: 1.5rem; border-left: 4px solid #0ea5e9;">
+                <h4 style="margin-bottom: 1rem; color: #0c4a6e;">📋 SCOPING ASSESSMENT QUESTIONS</h4>
+
+                <!-- Q1 -->
+                <div class="form-group">
+                    <label>Q1: Is this an external party? *</label>
+                    <select id="scope-q1">
+                        <option value="">Select answer</option>
+                        <option value="yes">Yes - External vendor/contractor</option>
+                        <option value="no">No - Internal employee/department</option>
+                    </select>
+                </div>
+
+                <!-- Q2 -->
+                <div class="form-group">
+                    <label>Q2: Is this Outsourcing or In-House? *</label>
+                    <select id="scope-outsourcing-type" onchange="updateOutsourcingQuestions()">
+                        <option value="">Select type</option>
+                        <option value="outsourced">Outsourced - Entire function outsourced</option>
+                        <option value="partial">Partial Outsourcing - Some activities outsourced</option>
+                        <option value="inhouse">In-House - No outsourcing</option>
+                    </select>
+                </div>
+
+                <!-- Q3 - Outsourcing Sub-Type (appears if outsourced) -->
+                <div class="form-group" id="outsourcing-subtype-group" style="display: none;">
+                    <label>Q3: If Outsourced, What Type of Outsourcing? *</label>
+                    <select id="scope-outsourcing-subtype">
+                        <option value="">Select type</option>
+                        <option value="business-process">Business Process Outsourcing (BPO)</option>
+                        <option value="infrastructure">Infrastructure Outsourcing (ITO)</option>
+                        <option value="knowledge-process">Knowledge Process Outsourcing (KPO)</option>
+                        <option value="application-mgmt">Application Management</option>
+                        <option value="cloud">Cloud Services</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+
+                <!-- Q4 - MATERIALITY QUESTIONS -->
+                <div style="background: #fef3c7; padding: 1rem; border-radius: 0.375rem; margin: 1.5rem 0; border-left: 4px solid #f59e0b;">
+                    <h4 style="margin-bottom: 1rem; color: #92400e;">💰 MATERIALITY ASSESSMENT</h4>
+                    
+                    <div class="form-group">
+                        <label>Q4a: Annual Spend as % of Revenue *</label>
+                        <select id="scope-spend-percentage">
+                            <option value="">Select range</option>
+                            <option value="high">High (>5% of revenue)</option>
+                            <option value="medium">Medium (1-5% of revenue)</option>
+                            <option value="low">Low (<1% of revenue)</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Q4b: Does this vendor handle sensitive data? *</label>
+                        <select id="scope-sensitive-data">
+                            <option value="">Select answer</option>
+                            <option value="yes-pii">Yes - Customer PII/Financial data</option>
+                            <option value="yes-operational">Yes - Operational data</option>
+                            <option value="no">No - Non-sensitive data only</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Q4c: Is this function directly customer-facing? *</label>
+                        <select id="scope-customer-facing">
+                            <option value="">Select answer</option>
+                            <option value="direct">Yes - Direct customer interaction</option>
+                            <option value="indirect">Indirect - Supports customer-facing functions</option>
+                            <option value="no">No - Back-office function</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Q4d: What is the Materiality Level? *</label>
+                        <select id="scope-materiality-level">
+                            <option value="">Select level</option>
+                            <option value="high">HIGH - Critical to business, significant spend, sensitive data</option>
+                            <option value="medium">MEDIUM - Important function, moderate spend, some sensitive data</option>
+                            <option value="low">LOW - Routine function, low spend, no sensitive data</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Q5 -->
+                <div class="form-group">
+                    <label>Q5: Is it critical to bank operations? *</label>
+                    <select id="scope-q3">
+                        <option value="">Select answer</option>
+                        <option value="critical">Critical - Bank cannot operate without it</option>
+                        <option value="important">Important - Service degradation if unavailable</option>
+                        <option value="routine">Routine - Bank can function without it</option>
+                    </select>
+                </div>
+
+                <!-- Q6 -->
+                <div class="form-group">
+                    <label>Q6: Does it access customer or bank data? *</label>
+                    <select id="scope-q2">
+                        <option value="">Select answer</option>
+                        <option value="pii">Yes - PII/Customer data</option>
+                        <option value="operational">Yes - Operational/financial data</option>
+                        <option value="no">No - Non-sensitive data only</option>
+                    </select>
+                </div>
+
+                <!-- Q7 -->
+                <div class="form-group">
+                    <label>Q7: Which frameworks apply? (Select all that apply) *</label>
+                    <div class="checkbox-group">
+                        <label class="checkbox-label"><input type="checkbox" name="frameworks" value="rbi"> RBI IT Framework</label>
+                        <label class="checkbox-label"><input type="checkbox" name="frameworks" value="sebi"> SEBI</label>
+                        <label class="checkbox-label"><input type="checkbox" name="frameworks" value="dpdp"> DPDP Act</label>
+                        <label class="checkbox-label"><input type="checkbox" name="frameworks" value="iso"> ISO 27001</label>
+                        <label class="checkbox-label"><input type="checkbox" name="frameworks" value="pci"> PCI-DSS</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex-gap" style="justify-content: flex-end;">
+                <button class="btn" style="background: var(--gray-300); color: var(--gray-900);" onclick="closeScopingForm()">Cancel</button>
+                <button class="btn btn-success" onclick="submitScoping()">✓ Submit & Create Inventory</button>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>© 2025 Spade v2 - Advanced Third-Party Risk Management | All Rights Reserved</p>
+    </footer>
+
+    <script>
+        // Data storage
+        let vendors = [];
+
+        // Update current date
+        document.addEventListener('DOMContentLoaded', function() {
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            // Initialize charts
+            initCharts();
+        });
+
+        // Tab switching
+        function switchTab(tabName) {
+            document.querySelectorAll('.container').forEach(el => el.classList.remove('active'));
+            document.getElementById(tabName).classList.add('active');
+
+            document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
+            event.target.classList.add('active');
+
+            // Refresh charts when switching to risk analysis
+            if (tabName === 'risk-analysis') {
+                setTimeout(() => {
+                    updateCharts();
+                }, 100);
+            }
+        }
+
+        // Scoping Modal Functions
+        function openScopingForm() {
+            document.getElementById('scopingModal').classList.add('active');
+        }
+
+        function closeScopingForm() {
+            document.getElementById('scopingModal').classList.remove('active');
+        }
+
+        function updateOutsourcingQuestions() {
+            const outsourcingType = document.getElementById('scope-outsourcing-type').value;
+            const subtypeGroup = document.getElementById('outsourcing-subtype-group');
+            
+            if (outsourcingType === 'outsourced' || outsourcingType === 'partial') {
+                subtypeGroup.style.display = 'block';
+            } else {
+                subtypeGroup.style.display = 'none';
+            }
+        }
+
+        function calculateInherentRisk() {
+            // Risk scoring logic
+            let riskScore = 0;
+            
+            // Base on criticality
+            const criticality = document.getElementById('scope-q3').value;
+            if (criticality === 'critical') riskScore += 40;
+            else if (criticality === 'important') riskScore += 25;
+            else riskScore += 10;
+
+            // Base on materiality
+            const materiality = document.getElementById('scope-materiality-level').value;
+            if (materiality === 'high') riskScore += 30;
+            else if (materiality === 'medium') riskScore += 15;
+            else riskScore += 5;
+
+            // Base on data access
+            const dataAccess = document.getElementById('scope-q2').value;
+            if (dataAccess === 'pii') riskScore += 20;
+            else if (dataAccess === 'operational') riskScore += 10;
+
+            // Base on outsourcing
+            const outsourcingType = document.getElementById('scope-outsourcing-type').value;
+            if (outsourcingType === 'outsourced') riskScore += 10;
+            else if (outsourcingType === 'partial') riskScore += 5;
+
+            return Math.min(riskScore, 100);
+        }
+
+        function getRiskLevel(score) {
+            if (score >= 75) return 'CRITICAL';
+            if (score >= 50) return 'HIGH';
+            if (score >= 25) return 'MEDIUM';
+            return 'LOW';
+        }
+
+        function submitScoping() {
+            const vendorName = document.getElementById('scope-vendor-name').value;
+            const vendorType = document.getElementById('scope-vendor-type').value;
+            const annualSpend = parseFloat(document.getElementById('scope-annual-spend').value) || 0;
+            const outsourcingType = document.getElementById('scope-outsourcing-type').value;
+            const outsourcingSubtype = document.getElementById('scope-outsourcing-subtype').value;
+            const materialityLevel = document.getElementById('scope-materiality-level').value;
+            const criticality = document.getElementById('scope-q3').value;
+
+            if (!vendorName || !vendorType || !outsourcingType || !materialityLevel || !criticality) {
+                alert('Please fill in all required fields');
+                return;
+            }
+
+            // Calculate risk score
+            const riskScore = calculateInherentRisk();
+            const riskLevel = getRiskLevel(riskScore);
+
+            // Create vendor object
+            const vendor = {
+                id: 'VND-' + (vendors.length + 1).toString().padStart(3, '0'),
+                name: vendorName,
+                type: vendorType,
+                annualSpend: annualSpend,
+                outsourcingType: outsourcingType,
+                outsourcingSubtype: outsourcingSubtype,
+                materiality: materialityLevel,
+                criticality: criticality,
+                riskScore: riskScore,
+                riskLevel: riskLevel,
+                dateAdded: new Date().toLocaleDateString('en-IN')
+            };
+
+            vendors.push(vendor);
+
+            // Update inventory displays
+            updateAllDisplays();
+
+            // Close modal and reset form
+            closeScopingForm();
+            document.getElementById('scopingModal').querySelector('form')?.reset?.();
+
+            alert(`✓ Vendor "${vendorName}" added to inventory!\n\nRisk Score: ${riskScore}/100 (${riskLevel})\nMateriality: ${materialityLevel.toUpperCase()}\nOutsourcing: ${outsourcingType.toUpperCase()}`);
+        }
+
+        function updateAllDisplays() {
+            updateDashboard();
+            updateScopingTable();
+            updateInventory();
+            updateOutsourcingClassification();
+            updateCharts();
+        }
+
+        function updateDashboard() {
+            document.getElementById('total-vendors').textContent = vendors.length;
+            
+            const criticalCount = vendors.filter(v => v.riskLevel === 'CRITICAL').length;
+            const highCount = vendors.filter(v => v.riskLevel === 'HIGH').length;
+            const outsourcedCount = vendors.filter(v => v.outsourcingType === 'outsourced' || v.outsourcingType === 'partial').length;
+            const highMateriality = vendors.filter(v => v.materiality === 'high').length;
+
+            document.getElementById('critical-count').textContent = criticalCount;
+            document.getElementById('high-count').textContent = highCount;
+            document.getElementById('outsourced-count').textContent = outsourcedCount;
+            document.getElementById('high-materiality').textContent = highMateriality;
+            document.getElementById('pending-scoping').textContent = 0;
+
+            // Summary stats
+            const inhouseCount = vendors.filter(v => v.outsourcingType === 'inhouse').length;
+            const criticalFunctions = vendors.filter(v => v.criticality === 'critical').length;
+            const importantFunctions = vendors.filter(v => v.criticality === 'important').length;
+
+            document.getElementById('inhouse-count').textContent = inhouseCount;
+            document.getElementById('outsourced-services').textContent = outsourcedCount;
+            document.getElementById('critical-functions').textContent = criticalFunctions;
+            document.getElementById('important-functions').textContent = importantFunctions;
+        }
+
+        function updateScopingTable() {
+            const tbody = document.getElementById('scoped-vendors');
+            
+            if (vendors.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 2rem; color: var(--gray-600);">No vendors scoped yet.</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = vendors.map(v => `
+                <tr>
+                    <td><strong>${v.name}</strong></td>
+                    <td>${v.type}</td>
+                    <td><span class="badge badge-info">${v.outsourcingType.toUpperCase()}</span></td>
+                    <td><span class="badge ${v.materiality === 'high' ? 'badge-danger' : v.materiality === 'medium' ? 'badge-warning' : 'badge-success'}">${v.materiality.toUpperCase()}</span></td>
+                    <td>₹${v.annualSpend}</td>
+                    <td><span class="badge ${v.riskLevel === 'CRITICAL' ? 'badge-danger' : v.riskLevel === 'HIGH' ? 'badge-warning' : 'badge-success'}">${v.riskScore}/100 - ${v.riskLevel}</span></td>
+                    <td><span class="badge badge-success">IN SCOPE</span></td>
+                </tr>
+            `).join('');
+        }
+
+        function updateInventory() {
+            const criticalVendors = vendors.filter(v => v.riskLevel === 'CRITICAL');
+            const highVendors = vendors.filter(v => v.riskLevel === 'HIGH');
+            const mediumLowVendors = vendors.filter(v => v.riskLevel === 'MEDIUM' || v.riskLevel === 'LOW');
+
+            // Critical vendors
+            const criticalTbody = document.getElementById('critical-vendors');
+            if (criticalVendors.length === 0) {
+                criticalTbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: var(--gray-600);">No critical risk vendors</td></tr>';
+            } else {
+                criticalTbody.innerHTML = criticalVendors.map(v => `
+                    <tr>
+                        <td><strong>${v.name}</strong></td>
+                        <td>${v.type}</td>
+                        <td>${v.outsourcingType}</td>
+                        <td><span class="badge ${v.materiality === 'high' ? 'badge-danger' : v.materiality === 'medium' ? 'badge-warning' : 'badge-success'}">${v.materiality}</span></td>
+                        <td>₹${v.annualSpend}</td>
+                        <td><strong>${v.riskScore}/100</strong></td>
+                    </tr>
+                `).join('');
+            }
+
+            // High vendors
+            const highTbody = document.getElementById('high-vendors');
+            if (highVendors.length === 0) {
+                highTbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: var(--gray-600);">No high risk vendors</td></tr>';
+            } else {
+                highTbody.innerHTML = highVendors.map(v => `
+                    <tr>
+                        <td><strong>${v.name}</strong></td>
+                        <td>${v.type}</td>
+                        <td>${v.outsourcingType}</td>
+                        <td><span class="badge ${v.materiality === 'high' ? 'badge-danger' : v.materiality === 'medium' ? 'badge-warning' : 'badge-success'}">${v.materiality}</span></td>
+                        <td>₹${v.annualSpend}</td>
+                        <td><strong>${v.riskScore}/100</strong></td>
+                    </tr>
+                `).join('');
+            }
+
+            // Medium/Low vendors
+            const mediumLowTbody = document.getElementById('medium-low-vendors');
+            if (mediumLowVendors.length === 0) {
+                mediumLowTbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: var(--gray-600);">No medium/low risk vendors</td></tr>';
+            } else {
+                mediumLowTbody.innerHTML = mediumLowVendors.map(v => `
+                    <tr>
+                        <td><strong>${v.name}</strong></td>
+                        <td>${v.type}</td>
+                        <td>${v.outsourcingType}</td>
+                        <td><span class="badge ${v.materiality === 'high' ? 'badge-danger' : v.materiality === 'medium' ? 'badge-warning' : 'badge-success'}">${v.materiality}</span></td>
+                        <td>₹${v.annualSpend}</td>
+                        <td><strong>${v.riskScore}/100</strong></td>
+                    </tr>
+                `).join('');
+            }
+        }
+
+        function updateOutsourcingClassification() {
+            const criticalOutsourced = vendors.filter(v => (v.outsourcingType === 'outsourced' || v.outsourcingType === 'partial') && v.criticality === 'critical');
+            const importantOutsourced = vendors.filter(v => (v.outsourcingType === 'outsourced' || v.outsourcingType === 'partial') && v.criticality === 'important');
+            const routineOutsourced = vendors.filter(v => (v.outsourcingType === 'outsourced' || v.outsourcingType === 'partial') && v.criticality === 'routine');
+
+            // Critical outsourced
+            const criticalTbody = document.getElementById('critical-outsourcing');
+            if (criticalOutsourced.length === 0) {
+                criticalTbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: var(--gray-600);">No critical outsourced services</td></tr>';
+            } else {
+                criticalTbody.innerHTML = criticalOutsourced.map(v => `
+                    <tr>
+                        <td><strong>${v.name}</strong></td>
+                        <td>${v.type}</td>
+                        <td><span class="badge ${v.materiality === 'high' ? 'badge-danger' : v.materiality === 'medium' ? 'badge-warning' : 'badge-success'}">${v.materiality}</span></td>
+                        <td>₹${v.annualSpend}</td>
+                        <td><span class="badge badge-danger">MONTHLY</span></td>
+                        <td><span class="badge badge-danger">CRITICAL</span></td>
+                    </tr>
+                `).join('');
+            }
+
+            // Important outsourced
+            const importantTbody = document.getElementById('important-outsourcing');
+            if (importantOutsourced.length === 0) {
+                importantTbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: var(--gray-600);">No important outsourced services</td></tr>';
+            } else {
+                importantTbody.innerHTML = importantOutsourced.map(v => `
+                    <tr>
+                        <td><strong>${v.name}</strong></td>
+                        <td>${v.type}</td>
+                        <td><span class="badge ${v.materiality === 'high' ? 'badge-danger' : v.materiality === 'medium' ? 'badge-warning' : 'badge-success'}">${v.materiality}</span></td>
+                        <td>₹${v.annualSpend}</td>
+                        <td><span class="badge badge-warning">QUARTERLY</span></td>
+                        <td><span class="badge badge-warning">HIGH</span></td>
+                    </tr>
+                `).join('');
+            }
+
+            // Routine outsourced
+            const routineTbody = document.getElementById('routine-outsourcing');
+            if (routineOutsourced.length === 0) {
+                routineTbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: var(--gray-600);">No routine outsourced services</td></tr>';
+            } else {
+                routineTbody.innerHTML = routineOutsourced.map(v => `
+                    <tr>
+                        <td><strong>${v.name}</strong></td>
+                        <td>${v.type}</td>
+                        <td><span class="badge ${v.materiality === 'high' ? 'badge-danger' : v.materiality === 'medium' ? 'badge-warning' : 'badge-success'}">${v.materiality}</span></td>
+                        <td>₹${v.annualSpend}</td>
+                        <td><span class="badge badge-success">ANNUAL</span></td>
+                        <td><span class="badge badge-success">LOW</span></td>
+                    </tr>
+                `).join('');
+            }
+        }
+
+        function initCharts() {
+            // Risk Distribution Chart
+            const riskCtx = document.getElementById('riskChart').getContext('2d');
+            new Chart(riskCtx, {
+                type: 'pie',
+                data: {
+                    labels: ['Critical', 'High', 'Medium', 'Low'],
+                    datasets: [{
+                        data: [0, 0, 0, 0],
+                        backgroundColor: ['#ef4444', '#f59e0b', '#ec4899', '#10b981']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { position: 'bottom' } }
+                }
+            });
+
+            // Outsourcing Chart
+            const outsourcingCtx = document.getElementById('outsourcingChart').getContext('2d');
+            new Chart(outsourcingCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Outsourced', 'In-House'],
+                    datasets: [{
+                        data: [0, 0],
+                        backgroundColor: ['#6366f1', '#10b981']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { position: 'bottom' } }
+                }
+            });
+
+            // Materiality Chart
+            const materialityCtx = document.getElementById('materialityChart').getContext('2d');
+            new Chart(materialityCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['High', 'Medium', 'Low'],
+                    datasets: [{
+                        label: 'Number of Vendors',
+                        data: [0, 0, 0],
+                        backgroundColor: ['#ef4444', '#f59e0b', '#10b981']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: { y: { beginAtZero: true } }
+                }
+            });
+        }
+
+        function updateCharts() {
+            const criticalCount = vendors.filter(v => v.riskLevel === 'CRITICAL').length;
+            const highCount = vendors.filter(v => v.riskLevel === 'HIGH').length;
+            const mediumCount = vendors.filter(v => v.riskLevel === 'MEDIUM').length;
+            const lowCount = vendors.filter(v => v.riskLevel === 'LOW').length;
+
+            const outsourcedCount = vendors.filter(v => v.outsourcingType === 'outsourced' || v.outsourcingType === 'partial').length;
+            const inhouseCount = vendors.filter(v => v.outsourcingType === 'inhouse').length;
+
+            const highMat = vendors.filter(v => v.materiality === 'high').length;
+            const mediumMat = vendors.filter(v => v.materiality === 'medium').length;
+            const lowMat = vendors.filter(v => v.materiality === 'low').length;
+
+            // Update charts
+            Chart.helpers.each(Chart.instances, function(instance) {
+                if (instance.canvas.id === 'riskChart') {
+                    instance.data.datasets[0].data = [criticalCount, highCount, mediumCount, lowCount];
+                    instance.update();
+                } else if (instance.canvas.id === 'outsourcingChart') {
+                    instance.data.datasets[0].data = [outsourcedCount, inhouseCount];
+                    instance.update();
+                } else if (instance.canvas.id === 'materialityChart') {
+                    instance.data.datasets[0].data = [highMat, mediumMat, lowMat];
+                    instance.update();
+                }
+            });
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('scopingModal');
+            if (event.target === modal) {
+                closeScopingForm();
+            }
+        }
+    </script>
+</body>
+</html>
